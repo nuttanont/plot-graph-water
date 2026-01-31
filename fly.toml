@@ -1,0 +1,23 @@
+﻿# Fly.io configuration
+app = "water-level-monitor"
+primary_region = "sin"  # Singapore region (closest to Thailand)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  TZ = "Asia/Bangkok"
+
+# This is a worker process, not a web service
+[[services]]
+  processes = ["app"]
+  protocol = "tcp"
+  internal_port = 8080
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]

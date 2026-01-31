@@ -1,0 +1,63 @@
+﻿# ============================================================================
+# Water Level Monitoring System - Docker Compose Configuration
+# ============================================================================
+# This file defines the service configuration for running the water level
+# monitoring system in a Docker container with automatic restarts and
+# persistent storage for generated graphs.
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # --------------------------------------------------------------------------
+  # Water Monitor Service
+  # --------------------------------------------------------------------------
+  water-monitor:
+    # Build from Dockerfile in current directory
+    build: .
+    
+    # Container name (easier to identify in 'docker ps')
+    container_name: water-level-monitor
+    
+    # Restart policy: always restart unless manually stopped
+    # Options: "no", "always", "on-failure", "unless-stopped"
+    restart: unless-stopped
+    
+    # Environment variables set in container
+    environment:
+      # Set timezone to Bangkok (Thailand)
+      - TZ=Asia/Bangkok
+      
+      # Uncomment to override update interval (default: 2 minutes)
+      # - UPDATE_INTERVAL_MINUTES=5
+      
+      # Uncomment to disable LINE notifications for testing
+      # - SEND_TO_LINE=false
+    
+    # Load additional environment variables from .env file
+    # This includes: LINE_API_KEY, CLOUDINARY credentials, etc.
+    env_file:
+      - .env
+    
+    # Override default CMD from Dockerfile
+    # Specify which station(s) to monitor
+    # Examples:
+    #   - Single station: python main.py 702
+    #   - Multiple stations: python main.py 701 702 703
+    command: python main.py 702
+    
+    # Volume mounts: map host directory to container directory
+    # Format: HOST_PATH:CONTAINER_PATH
+    # This makes generated graphs accessible on your local machine
+    volumes:
+      - ./graphs:/app/graphs
+    
+    # --------------------------------------------------------------------------
+    # Configuration Notes:
+    # --------------------------------------------------------------------------
+    # - Graphs saved to: ./graphs/ (on your Mac)
+    # - Update frequency: Set UPDATE_INTERVAL_MINUTES in .env
+    # - Monitor multiple stations: Edit 'command' line above
+    # - Stop container: docker-compose down
+    # - View logs: docker-compose logs -f
+    # --------------------------------------------------------------------------
