@@ -127,17 +127,40 @@ docker-compose up -d
 
 ## 🔄 Continuous Monitoring
 
-To keep the script running continuously (remove the `break` statement):
+The system runs continuously by default with configurable intervals.
 
-Edit `main.py` line ~176:
-```python
-# Remove or comment out this line:
-# break
+**Change update frequency:**
+
+Edit `.env`:
+```env
+UPDATE_INTERVAL_MINUTES=5  # Default: 2 minutes
+```
+
+Or override in `docker-compose.yml`:
+```yaml
+environment:
+  - UPDATE_INTERVAL_MINUTES=5
 ```
 
 Then rebuild:
 ```bash
 docker-compose up -d --build
+```
+
+## 🎨 Customize Graphs
+
+**Edit graph appearance:**
+- Colors: `graph/plotter.py`
+- Alert thresholds: Automatic from API data
+- Graph size: `figsize=(14, 10)` in `plotter.py`
+
+**Modular structure:**
+```
+config/settings.py      - Configuration
+graph/data_processor.py - Data extraction  
+graph/plotter.py        - Graph generation
+integrations/           - External services
+services/               - Core logic
 ```
 
 ---

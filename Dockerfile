@@ -62,9 +62,13 @@ RUN rm -rf /root/.cache/matplotlib \
 # ----------------------------------------------------------------------------
 # APPLICATION CODE
 # ----------------------------------------------------------------------------
-# Copy Python script and environment variables
+# Copy all application modules and environment variables
 COPY main.py .
 COPY .env .
+COPY config/ ./config/
+COPY graph/ ./graph/
+COPY integrations/ ./integrations/
+COPY services/ ./services/
 
 # Create directory for graph output (will be mounted as volume)
 RUN mkdir -p /app/graphs

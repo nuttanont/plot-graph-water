@@ -51,6 +51,11 @@ services:
     # This makes generated graphs accessible on your local machine
     volumes:
       - ./graphs:/app/graphs
+      - ./config:/app/config
+      - ./graph:/app/graph
+      - ./integrations:/app/integrations
+      - ./services:/app/services
+      - ./main.py:/app/main.py
     
     # --------------------------------------------------------------------------
     # Configuration Notes:

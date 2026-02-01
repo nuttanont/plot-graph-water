@@ -5,13 +5,16 @@ Real-time water level monitoring system that connects to Thai government water s
 ## ✨ Features
 
 - 📊 **Real-time Data Collection** - Connects to Thai water station websockets
-- 📈 **Automated Graph Generation** - Creates water level graphs with Thai language support
+- 📈 **Multi-Panel Dashboard** - Water level + rainfall graphs with alert zones
+- 🚨 **Disaster Alerts** - Warning/critical threshold visualization (ภัยพิบัติ)
+- 🌧️ **Rainfall Monitoring** - Bar charts showing precipitation data (ปริมาณน้ำฝน)
 - ☁️ **Cloud Image Hosting** - Uploads graphs to Cloudinary
 - 📱 **LINE Notifications** - Sends graph images to LINE groups/chats
 - 🐳 **Docker Support** - Easy deployment with Docker and Docker Compose
 - ⏰ **Configurable Intervals** - Set custom update frequencies
 - 🔄 **Multi-Station Support** - Monitor multiple stations simultaneously
 - 🌏 **Thai Character Support** - Full Unicode support for Thai text
+- 📦 **Modular Architecture** - Clean folder structure for easy maintenance
 
 ## 🚀 Quick Start
 
@@ -138,18 +141,29 @@ docker-compose run -e SEND_TO_LINE=false water-monitor
 
 ```
 plot-graph-socket/
-├── main.py                 # Main application code
-├── import_matplotlib.py    # Standalone graph generator (from JSON)
-├── import_asyncio.py       # Websocket listener example
-├── requirements.txt        # Python dependencies
-├── Dockerfile             # Docker image configuration
-├── docker-compose.yml     # Docker Compose configuration
-├── .env                   # Environment variables (not in git)
-├── .gitignore            # Git ignore rules
-├── DEPLOYMENT.md         # Detailed deployment guide
-├── README.md             # This file
-├── graphs/               # Generated graph images (created automatically)
-└── response-*.json       # Sample data files
+├── main.py                      # Application entry point
+├── config/
+│   └── settings.py              # Configuration & initialization
+├── graph/
+│   ├── data_processor.py        # Data extraction from websocket
+│   └── plotter.py               # Multi-panel graph generation
+├── integrations/
+│   ├── cloudinary_service.py    # Image upload to Cloudinary
+│   └── line_service.py          # LINE notification sending
+├── services/
+│   └── websocket_service.py     # WebSocket connection handling
+├── import_matplotlib.py         # Standalone graph generator (from JSON)
+├── import_asyncio.py            # Websocket listener example
+├── requirements.txt             # Python dependencies
+├── Dockerfile                   # Docker image configuration
+├── docker-compose.yml           # Docker Compose configuration
+├── .env                         # Environment variables (not in git)
+├── .env.example                 # Environment template
+├── .gitignore                   # Git ignore rules
+├── DEPLOYMENT.md                # Detailed deployment guide
+├── README.md                    # This file
+├── graphs/                      # Generated graph images (auto-created)
+└── response-*.json              # Sample data files
 ```
 
 ## 🐳 Docker Deployment
@@ -173,11 +187,16 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions includin
 
 ### Graph Generation
 
-- **Continuous line graphs** with filled areas
+- **Multi-panel dashboard** (2 subplots: water level + rainfall)
+- **Water level graph** with continuous line and filled areas
+- **Alert zones** with color-coded thresholds:
+  - 🟡 **Warning zone** (เฝ้าระวัง) - Orange
+  - 🔴 **Critical zone** (วิกฤต) - Red
+- **Rainfall bar chart** showing precipitation events
 - **Time-series data** with proper datetime formatting
 - **Station information** in title (code, name, basin)
-- **High-quality output** (150 DPI)
-- **Thai language support** with proper font rendering
+- **High-quality output** (150 DPI, 14"×10" dashboard)
+- **Thai + English labels** with proper font rendering
 
 ### Monitoring
 
@@ -211,13 +230,27 @@ SEND_TO_LINE=false python main.py 703
 
 ### Code Structure
 
-The code is organized into clear sections:
-- **Configuration** - Environment setup and matplotlib configuration
-- **Data Processing** - Extract and process water level data
-- **Graph Generation** - Create and save graphs
-- **Image Hosting** - Upload to Cloudinary
-- **Messaging** - Send to LINE API
-- **Monitoring** - Websocket connections and scheduling
+Modular architecture with clear separation of concerns:
+
+**main.py** - Application entry point (37 lines)
+- Initializes configurations
+- Orchestrates monitoring tasks
+
+**config/settings.py** - Configuration module
+- Environment variable loading
+- Cloudinary initialization
+- Matplotlib font configuration
+
+**graph/** - Graph generation modules
+- `data_processor.py` - Extract data from websocket JSON
+- `plotter.py` - Create multi-panel dashboards
+
+**integrations/** - External service integrations
+- `cloudinary_service.py` - Image upload to cloud
+- `line_service.py` - LINE notification sending
+
+**services/** - Core services
+- `websocket_service.py` - WebSocket connection management
 
 ## 🐛 Troubleshooting
 
@@ -247,6 +280,23 @@ docker-compose up
 The Dockerfile installs comprehensive font support. If you still see warnings:
 ```bash
 docker-compose build --no-cache
+```
+
+### Module Import Errors
+
+If you get `ModuleNotFoundError` after restructuring:
+
+1. **Docker:** Rebuild container
+```bash
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+2. **Local:** Ensure you're in the project root
+```bash
+cd /path/to/plot-graph-socket
+python main.py 703
 ```
 
 ## 📊 Monitoring Multiple Stations
